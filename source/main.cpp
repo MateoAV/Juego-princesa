@@ -3,7 +3,6 @@
 #include <conio.h>
 #include <time.h>
 #include <stdio.h>
-#include "movimientos.cpp"
 
 using namespace std;
 //variables de inicialización de personajes
@@ -79,7 +78,6 @@ cout<<"numero mama: "<<numero_mama<<endl;
 cout<<"numero pret: "<<numero_pret<<endl;
 cout<<"numero ex: "<<numero_ex<<endl;*/
 }
-
 
 void imprimir()
 {
@@ -206,7 +204,7 @@ bool movimiento_reina(int jugada) {
         numero_reina = new_pos;
         return 1;break;
     case 1:
-        return 1;break;
+        return 0;break;
     case 2:
         return 0;break;
     case 3:
@@ -284,7 +282,7 @@ bool movimiento_exnovio(int jugada) {
     }
     int x = 0, y = 0, new_pos = 0;
 
-    //Como la princesa se mueve como rey, este ciclo genera las 8 posibilidades.
+    //Como el ex novio se mueve como rey, este ciclo genera las 8 posibilidades.
 
     switch (jugada){
     case 0: x=matrix_x(pos);
@@ -332,11 +330,13 @@ bool movimiento_exnovio(int jugada) {
     case 4:
         return 0;break;
     case 5:
-        return 1;break;
+        return 0;break;
     }
 }
 
 // Inicia papás
+
+//funciones que devuelven los valores máximos que se puede mover el papá en cualquier dirección
 
 int pos_arriba(int posicion){
     int x = matrix_x(posicion);
@@ -377,7 +377,6 @@ int pos_izquierda(int posicion){
     }
     return posicion;
 }
-
 
 
 int pos_diagderecha(int posicion){
@@ -424,6 +423,8 @@ int pos_diag_abizquierda(int posicion){
     return posicion;
 }
 
+// función que verifica si hay algún otro personaje alrededor de una casilla dada
+
 int cas_ady(int posicion) {
     int x = matrix_x(posicion);
     int y = matrix_y(posicion);
@@ -458,6 +459,8 @@ int cas_ady(int posicion) {
     }
 }
 
+// funciones para cada movimiento, 8 en total.
+
 bool max_abajo_ma(int posicion, int casilla){
     int posicion1 = posicion;
     int m_aba = pos_abajo(posicion);
@@ -478,7 +481,6 @@ bool max_abajo_ma(int posicion, int casilla){
     case 0: tablero[posicion1]=0;
             tablero[posicion]=casilla;
             numero_mama = posicion;
-
             return 1;break;
     case 1: if(cas_ady(posicion1)==5){
             return 0;
@@ -486,12 +488,10 @@ bool max_abajo_ma(int posicion, int casilla){
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_mama = new_pos;
-
             return  1;
             };break;
     case 2: tablero[posicion]=casilla;
             numero_mama = posicion;
-
             return 0;break;
     case 3: if(cas_ady(posicion1)==5){
             return 0;
@@ -499,7 +499,6 @@ bool max_abajo_ma(int posicion, int casilla){
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_mama = new_pos;
-            cout<<"caso mama "<<posicion<<endl;
             return 1;
             };break;
     case 4: if(matrix_x(posicion)!=8){
@@ -573,7 +572,6 @@ bool max_arriba_ma(int posicion, int casilla){
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_mama = new_pos;
-            cout<<"caso mama "<<posicion<<endl;
             return 1;
             };break;
     case 4: if(matrix_x(posicion)!=1){
@@ -646,7 +644,6 @@ bool max_derecha_ma(int posicion, int casilla){
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_mama = new_pos;
-            cout<<"caso mama "<<posicion<<endl;
             return 1;
             };break;
     case 4: if(matrix_y(posicion)!=8){
@@ -716,7 +713,6 @@ bool max_izquierda_ma(int posicion, int casilla){
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_mama = new_pos;
-            cout<<"caso mama "<<posicion<<endl;
             return 1;
             };break;
     case 4: if(matrix_y(posicion)!=1){
@@ -1082,7 +1078,6 @@ bool max_abajo(int posicion, int casilla){
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            cout<<"caso mama "<<posicion<<endl;
             return 1;
             };break;
     case 4: if(matrix_x(posicion)!=8){
@@ -1156,7 +1151,6 @@ bool max_arriba(int posicion, int casilla){
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            cout<<"caso mama "<<posicion<<endl;
             return 1;
             };break;
     case 4: if(matrix_x(posicion)!=1){
@@ -1229,7 +1223,6 @@ bool max_derecha(int posicion, int casilla){
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            cout<<"caso mama "<<posicion<<endl;
             return 1;
             };break;
     case 4: if(matrix_y(posicion)!=8){
@@ -1302,7 +1295,6 @@ bool max_izquierda(int posicion, int casilla){
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            cout<<"caso mama "<<posicion<<endl;
             return 1;
             };break;
     case 4: if(matrix_y(posicion)!=1){
