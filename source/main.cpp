@@ -13,6 +13,7 @@ int reina[1], papa[1], mama[1], pret[1], exnovio[1];
 int cas_re = 1, cas_pa = 2, cas_ma = 3, cas_pret = 4, cas_exn = 5;
 int turno = 1;
 int tablero[64];
+int cas_llenas[8];
 //variable de nueva posición
 int new_pos;
 
@@ -138,22 +139,38 @@ int nueva_pos(int x, int y)
 }
 
 //función para saber el jugador actual
-
+int turno_act(){
+if(turno%5==0){
+    return 5;
+}
+else if(turno%5==1){
+    return 1;
+}
+else if(turno%5==2){
+    return 2;
+}
+else if(turno%5==3){
+    return 3;
+}
+else if(turno%5==4){
+    return 4;
+}
+}
 int curr_jug() {
     int jugador;
-    if(turno == 1 || turno == 6) {
+    if(turno_act() == 1) {
         jugador = numero_reina;
     }
-    if(turno == 2 || turno == 7) {
+    if(turno_act() == 2) {
         jugador = numero_papa;
     }
-    if(turno == 3 || turno == 8) {
+    if(turno_act() == 3) {
         jugador = numero_mama;
     }
-    if(turno == 4 || turno == 9) {
+    if(turno_act() == 4) {
         jugador = numero_pret;
     }
-    if(turno == 5 || turno == 10) {
+    if(turno_act() == 5) {
         jugador = numero_ex;
     }
     return jugador;
@@ -163,7 +180,7 @@ int curr_jug() {
 
 bool movimiento_reina(int jugada) {
     int pos;
-    if(turno == 1 || turno == 6){
+    if(turno_act() == 1){
         pos = numero_reina;
     }
     int x = 0, y = 0, new_pos = 0;
@@ -218,7 +235,7 @@ bool movimiento_reina(int jugada) {
 
 bool movimiento_pretendiente(int jugada) {
     int pos;
-    if(turno == 4 || turno == 9){
+    if(turno_act() == 4){
         pos = numero_pret;
     }
     int x = 0, y = 0, new_pos = 0;
@@ -277,7 +294,7 @@ bool movimiento_pretendiente(int jugada) {
 
 bool movimiento_exnovio(int jugada) {
     int pos;
-    if(turno == 5 || turno == 10){
+    if(turno_act() == 5){
         pos = numero_ex;
     }
     int x = 0, y = 0, new_pos = 0;
@@ -425,654 +442,78 @@ int pos_diag_abizquierda(int posicion){
 
 // función que verifica si hay algún otro personaje alrededor de una casilla dada
 
-int cas_ady(int posicion) {
+int cas_ady(int posicion, int j) {
+    for (int i; i<8; i++){
+        cas_llenas[i] = 0;
+    }
     int x = matrix_x(posicion);
     int y = matrix_y(posicion);
 
-    int arr = nueva_pos(x - 1, y);
-    int aba = nueva_pos(x + 1, y);
-    int ar_der = nueva_pos(x - 1, y + 1);
-    int ar_izq = nueva_pos(x -1, y - 1);
-    int der = nueva_pos(x, y + 1);
-    int izq = nueva_pos(x, y - 1);
-    int ab_der = nueva_pos(x + 1, y + 1);
-    int ab_izq = nueva_pos(x + 1, y - 1);
+    int pos_ady[] = {
+    nueva_pos(x - 1, y),
+    nueva_pos(x - 1, y + 1),
+    nueva_pos(x, y + 1),
+    nueva_pos(x + 1, y + 1),
+    nueva_pos(x + 1, y),
+    nueva_pos(x, y - 1),
+    nueva_pos(x + 1, y - 1),
+    nueva_pos(x -1, y - 1)
+    };
 
-    if(tablero[arr]!=0){
-        return 1;
-    }else if(tablero[ar_der]!=0){
-        return 2;
-    }else if(tablero[der]!=0){
-        return 3;
-    }else if(tablero[ab_der]!=0){
-        return 4;
-    }else if(tablero[aba]!=0){
-        return 5;
-    }else if(tablero[ab_izq]!=0){
-        return 6;
-    }else if(tablero[izq]!=0){
-        return 7;
-    }else if(tablero[ar_izq]!=0){
-        return 8;
-    }else {
-    return 0;
+    if(tablero[pos_ady[j]]!=0){
+        cas_llenas[j] = 1;
+        return cas_llenas[j];
+    }else{
+        return cas_llenas[j];
     }
 }
+
 
 // funciones para cada movimiento, 8 en total.
-
-bool max_abajo_ma(int posicion, int casilla){
-    int posicion1 = posicion;
-    int m_aba = pos_abajo(posicion);
-    int x = matrix_x(posicion);
-    int y = matrix_y(posicion);
-
-    while(x<8){
-        x++;
-        posicion = nueva_pos(x, y);
-        if(tablero[posicion]!=0){
-            break;
-        }
-    };
-
-    int new_pos = nueva_pos(x - 1, y);
-
-    switch(tablero[posicion]){
-    case 0: tablero[posicion1]=0;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-            return 1;break;
-    case 1: if(cas_ady(posicion1)==5){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            return  1;
-            };break;
-    case 2: tablero[posicion]=casilla;
-            numero_mama = posicion;
-            return 0;break;
-    case 3: if(cas_ady(posicion1)==5){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            return 1;
-            };break;
-    case 4: if(matrix_x(posicion)!=8){
-            tablero[posicion1]=0;
-            tablero[posicion] = casilla;
-            tablero[m_aba]= cas_pret;
-            numero_mama = posicion;
-            numero_pret = m_aba;
-            }else {
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            };
-
-            return 1;
-            break;
-    case 5: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[m_aba] = cas_exn;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-            numero_ex = m_aba;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            };
-
-            return 1;
-            break;
-    default: return 0;break;
-    };
-}
-bool max_arriba_ma(int posicion, int casilla){
-    int posicion1 = posicion;
-    int m_arr = pos_arriba(posicion);
-    int x = matrix_x(posicion);
-    int y = matrix_y(posicion);
-    while(x>1){
-        x--;
-        posicion = nueva_pos(x, y);
-        if(tablero[posicion]!=0){
-            break;
-        }
-    }
-
-    int new_pos = nueva_pos(x + 1, y);
-
-    switch(tablero[posicion]){
-    case 0: tablero[posicion1]=0;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 1;break;
-    case 1: if(cas_ady(posicion1)==1){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-
-            return 1;
-            };break;
-    case 2: tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 0;break;
-    case 3: if(cas_ady(posicion1)==1){
-            return 0;
-            }else {
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            return 1;
-            };break;
-    case 4: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[posicion] = casilla;
-            tablero[m_arr]= cas_pret;
-            numero_mama = posicion;
-            numero_pret = m_arr;
-            }else {
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-            return 1;break;
-
-    case 5: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[m_arr] = cas_exn;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-            numero_ex = m_arr;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-            return 1;break;
-
-    default: return 0;break;
-    };
-}
-
-bool max_derecha_ma(int posicion, int casilla){
-    int posicion1 = posicion;
-    int m_der = pos_derecha(posicion);
-    int x = matrix_x(posicion);
-    int y = matrix_y(posicion);
-    while(y<8){
-        y++;
-        posicion = nueva_pos(x, y);
-        if(tablero[posicion]!=0){
-            break;
-        }
-    }
-
-    int new_pos = nueva_pos(x, y - 1);
-
-    switch(tablero[posicion]){
-    case 0: tablero[posicion1]=0;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 1;break;
-    case 1: if(cas_ady(posicion1)==3){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-
-            return 1;
-            };break;
-    case 2: tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 0;break;
-    case 3: if(cas_ady(posicion1)==3){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            return 1;
-            };break;
-    case 4: if(matrix_y(posicion)!=8){
-            tablero[posicion1]=0;
-            tablero[posicion] = casilla;
-            tablero[m_der]= cas_pret;
-            numero_mama = posicion;
-            numero_pret = m_der;
-            }else {
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[m_der] = cas_exn;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-            numero_ex = m_der;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            return 0;
-            }
-
-            return 1;break;
-    default: return 0;break;
-    };
-}
-bool max_izquierda_ma(int posicion, int casilla){
-    int posicion1 = posicion;
-    int m_izq = pos_izquierda(posicion);
-    int x = matrix_x(posicion);
-    int y = matrix_y(posicion);
-    while(y>1){
-        y--;
-        posicion = nueva_pos(x, y);
-        if(tablero[posicion]!=0){
-            break;
-        }
-    }
-
-    int new_pos = nueva_pos(x + 1, y);
-
-    switch(tablero[posicion]){
-    case 0: tablero[posicion1]=0;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-            return 1;break;
-    case 1: if(cas_ady(posicion1)==7){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            return 1;
-            };break;
-    case 2: tablero[posicion]=casilla;
-            numero_mama = posicion;
-            return 0;break;
-    case 3: if(cas_ady(posicion1)==7){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            return 1;
-            };break;
-    case 4: if(matrix_y(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[posicion] = casilla;
-            tablero[m_izq]= cas_pret;
-            numero_mama = posicion;
-            numero_pret = m_izq;
-            }else {
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[m_izq] = cas_exn;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-            numero_ex = m_izq;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    default: return 0;break;
-    };
-}
-
-bool max_diagderecha_ma(int posicion, int casilla){
-    int posicion1 = posicion;
-    int m_dider = pos_diagderecha(posicion);
-    int x = matrix_x(posicion);
-    int y = matrix_y(posicion);
-    while(x>1 && y<8){
-        x--;
-        y++;
-        posicion = nueva_pos(x, y);
-        if(tablero[posicion]!=0){
-            break;
-        }
-    }
-    int new_pos = nueva_pos(x+1, y-1);
-
-    switch(tablero[posicion]){
-    case 0: tablero[posicion1]=0;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 1;break;
-    case 1: if(cas_ady(posicion1)==2){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-
-            return 1;
-            };break;
-    case 2: tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 0;break;
-    case 3: if(cas_ady(posicion1)==2){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-
-            return 1;
-            };break;
-    case 4: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[posicion] = casilla;
-            tablero[m_dider]= cas_pret;
-            numero_mama = posicion;
-            numero_pret = m_dider;
-            }else {
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[m_dider] = cas_exn;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-            numero_ex = m_dider;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    default: return 0;break;
-    };
-}
-
-bool max_diagizquierda_ma(int posicion, int casilla){
-    int posicion1 = posicion;
-    int m_dizq = pos_diagizquierda(posicion);
-    int x = matrix_x(posicion);
-    int y = matrix_y(posicion);
-    while(x>1 && y>1){
-        x--;
-        y--;
-        posicion = nueva_pos(x, y);
-        if(tablero[posicion]!=0){
-            break;
-        }
-    }
-
-    int new_pos = nueva_pos(x+1, y+1);
-
-    switch(tablero[posicion]){
-    case 0: tablero[posicion1]=0;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 1;break;
-    case 1: if(cas_ady(posicion1)==8){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-
-            return 1;
-            };break;
-    case 2: tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 0;break;
-    case 3: if(cas_ady(posicion1)==8){
-            return 0;
-            }else{tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-
-            return 1;
-            };break;
-    case 4: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[posicion] = casilla;
-            tablero[m_dizq]= cas_pret;
-            numero_mama = posicion;
-            numero_pret = m_dizq;
-            }else {
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[m_dizq] = cas_exn;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-            numero_ex = m_dizq;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    default: return 0;break;
-    };
-}
-
-bool max_diag_abderecha_ma(int posicion, int casilla){
-    int posicion1 = posicion;
-    int m_abder = pos_diag_abderecha(posicion);
-    int x = matrix_x(posicion);
-    int y = matrix_y(posicion);
-    while(x<8 && y<8){
-        x++;
-        y++;
-        posicion = nueva_pos(x, y);
-        if(tablero[posicion]!=0){
-            break;
-        }
-    }
-    int new_pos = nueva_pos(x-1, y-1);
-
-    switch(tablero[posicion]){
-    case 0: tablero[posicion1]=0;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 1;break;
-    case 1: if(cas_ady(posicion1)==4){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-
-            return 1;
-            };break;
-    case 2: tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 0;break;
-    case 3: if(cas_ady(posicion1)==4){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-
-            return 1;
-            };break;
-    case 4: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[posicion] = casilla;
-            tablero[m_abder]= cas_pret;
-            numero_mama = posicion;
-            numero_pret = m_abder;
-            }else {
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=8){
-            tablero[posicion1]=0;
-            tablero[m_abder] = cas_exn;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-            numero_ex = m_abder;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    default: return 0;break;
-    };
-}
-
-bool max_diag_abizquierda_ma(int posicion, int casilla){
-    int posicion1 = posicion;
-    int m_abizq = pos_diag_abizquierda(posicion);
-    int x = matrix_x(posicion);
-    int y = matrix_y(posicion);
-    while(x<8 && y>1){
-        x++;
-        y--;
-        posicion = nueva_pos(x, y);
-        if(tablero[posicion]!=0){
-            break;
-        }
-    }
-    int new_pos = nueva_pos(x+1, y-1);
-
-    switch(tablero[posicion]){
-    case 0: tablero[posicion1]=0;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 1;break;
-    case 1: if(cas_ady(posicion1)==6){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-
-            return 1;
-            };break;
-    case 2: tablero[posicion]=casilla;
-            numero_mama = posicion;
-
-            return 0;break;
-    case 3: if(cas_ady(posicion1)==6){
-            return 0;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-
-            return 1;
-            };break;
-    case 4: if(matrix_x(posicion)!=1){
-            tablero[posicion1]=0;
-            tablero[posicion] = casilla;
-            tablero[m_abizq]= cas_pret;
-            numero_mama = posicion;
-            numero_pret = m_abizq;
-            }else {
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=8){
-            tablero[posicion1]=0;
-            tablero[m_abizq] = cas_exn;
-            tablero[posicion]=casilla;
-            numero_mama = posicion;
-            numero_ex = m_abizq;
-            }else{
-            tablero[posicion1] = 0;
-            tablero[new_pos] = casilla;
-            numero_mama = new_pos;
-            }
-
-            return 1;break;
-    default: return 0;break;
-    };
-}
 
 bool max_abajo(int posicion, int casilla){
     int posicion1 = posicion;
     int m_aba = pos_abajo(posicion);
     int x = matrix_x(posicion);
     int y = matrix_y(posicion);
+    int max_x = matrix_x(m_aba);
+    int max_y = matrix_y(m_aba);
+    int posi;
 
     while(x<8){
         x++;
         posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
         if(tablero[posicion]!=0){
             break;
         }
     };
 
-    int new_pos = nueva_pos(x - 1, y);
+    int cas_ini = cas_ady(posicion1, 4);
+    int cas_des = cas_ady(posicion, 4);
 
+    int new_pos = nueva_pos(x - 1, y);
+    cout<<posicion1<<endl;
+    cout<<posicion<<endl;
+    cout<<cas_ady(posicion, 4)<<endl;
     switch(tablero[posicion]){
     case 0: tablero[posicion1]=0;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 1;break;
-    case 1: if(cas_ady(posicion1)==5){
+    case 1: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
             return  1;
             };break;
     case 2: tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 0;break;
-    case 3: if(cas_ady(posicion1)==5){
+    case 3: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
@@ -1080,49 +521,82 @@ bool max_abajo(int posicion, int casilla){
             numero_papa = new_pos;
             return 1;
             };break;
-    case 4: if(matrix_x(posicion)!=8){
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_x(posicion)!=8){
+            while(x<max_x){
+                x++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y);
+            break;
+            }
+            };
             tablero[posicion1]=0;
             tablero[posicion] = casilla;
-            tablero[m_aba]= cas_pret;
+            tablero[posi]= cas_pret;
             numero_papa = posicion;
-            numero_pret = m_aba;
+            numero_pret = posi;
+            return 1;
             }else {
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            };
-
             return 1;
+            };
             break;
-    case 5: if(matrix_x(posicion)!=1){
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_x(posicion)!=8){
+            while(x<max_x){
+                x++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y);
+            break;
+            }
+            };
             tablero[posicion1]=0;
-            tablero[m_aba] = cas_exn;
+            tablero[posi] = cas_exn;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-            numero_ex = m_aba;
-            }else{
+            numero_ex = posi;
+            return 1;
+            }
+            else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            };
-
             return 1;
+            };
             break;
     default: return 0;break;
     };
 }
+
 bool max_arriba(int posicion, int casilla){
     int posicion1 = posicion;
     int m_arr = pos_arriba(posicion);
     int x = matrix_x(posicion);
     int y = matrix_y(posicion);
+    int max_x = matrix_x(m_arr);
+    int max_y = matrix_y(m_arr);
+    int posi;
+
     while(x>1){
         x--;
         posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
         if(tablero[posicion]!=0){
             break;
         }
-    }
+    };
+
+    int cas_ini = cas_ady(posicion1, 0);
+    int cas_des = cas_ady(posicion, 0);
 
     int new_pos = nueva_pos(x + 1, y);
 
@@ -1130,55 +604,77 @@ bool max_arriba(int posicion, int casilla){
     case 0: tablero[posicion1]=0;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 1;break;
-    case 1: if(cas_ady(posicion1)==1){
+    case 1: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
-            return 1;
+            return  1;
             };break;
     case 2: tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 0;break;
-    case 3: if(cas_ady(posicion1)==1){
+    case 3: if(cas_ini!=0){
             return 0;
-            }else {
+            }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
             return 1;
             };break;
-    case 4: if(matrix_x(posicion)!=1){
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_x(posicion)!=1){
+            while(x>max_x){
+                x--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y);
+            break;
+            }
+            };
             tablero[posicion1]=0;
             tablero[posicion] = casilla;
-            tablero[m_arr]= cas_pret;
+            tablero[posi]= cas_pret;
             numero_papa = posicion;
-            numero_pret = m_arr;
+            numero_pret = posi;
+            return 1;
             }else {
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
             }
-            return 1;break;
-
-    case 5: if(matrix_x(posicion)!=1){
+            else if(matrix_x(posicion)!=1){
+            while(x>max_x){
+                x--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y);
+            break;
+            }
+            };
             tablero[posicion1]=0;
-            tablero[m_arr] = cas_exn;
+            tablero[posi] = cas_exn;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-            numero_ex = m_arr;
-            }else{
+            numero_ex = posi;
+            return 1;
+            }
+            else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            }
-            return 1;break;
-
+            return 1;
+            };
+            break;
     default: return 0;break;
     };
 }
@@ -1188,13 +684,22 @@ bool max_derecha(int posicion, int casilla){
     int m_der = pos_derecha(posicion);
     int x = matrix_x(posicion);
     int y = matrix_y(posicion);
+    int max_x = matrix_x(m_der);
+    int max_y = matrix_y(m_der);
+    int posi;
+
     while(y<8){
         y++;
         posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
         if(tablero[posicion]!=0){
             break;
         }
-    }
+    };
+
+    int cas_ini = cas_ady(posicion1, 2);
+    int cas_des = cas_ady(posicion, 2);
 
     int new_pos = nueva_pos(x, y - 1);
 
@@ -1202,22 +707,19 @@ bool max_derecha(int posicion, int casilla){
     case 0: tablero[posicion1]=0;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 1;break;
-    case 1: if(cas_ady(posicion1)==3){
+    case 1: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
-            return 1;
+            return  1;
             };break;
     case 2: tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 0;break;
-    case 3: if(cas_ady(posicion1)==3){
+    case 3: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
@@ -1225,71 +727,102 @@ bool max_derecha(int posicion, int casilla){
             numero_papa = new_pos;
             return 1;
             };break;
-    case 4: if(matrix_y(posicion)!=8){
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=8){
+            while(y<max_y){
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x, y - 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
             tablero[posicion] = casilla;
-            tablero[m_der]= cas_pret;
+            tablero[posi]= cas_pret;
             numero_papa = posicion;
-            numero_pret = m_der;
+            numero_pret = posi;
+            return 1;
             }else {
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
             }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=1){
+            else if(matrix_y(posicion)!=8){
+            while(y<max_y){
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x, y - 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
-            tablero[m_der] = cas_exn;
+            tablero[posi] = cas_exn;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-            numero_ex = m_der;
-            }else{
+            numero_ex = posi;
+            return 1;
+            }
+            else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            return 0;
-            }
-
-            return 1;break;
+            return 1;
+            };
+            break;
     default: return 0;break;
     };
 }
+
 bool max_izquierda(int posicion, int casilla){
     int posicion1 = posicion;
     int m_izq = pos_izquierda(posicion);
     int x = matrix_x(posicion);
     int y = matrix_y(posicion);
+    int max_x = matrix_x(m_izq);
+    int max_y = matrix_y(m_izq);
+    int posi;
+
     while(y>1){
         y--;
         posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
         if(tablero[posicion]!=0){
             break;
         }
-    }
+    };
 
-    int new_pos = nueva_pos(x + 1, y);
+    int cas_ini = cas_ady(posicion1, 6);
+    int cas_des = cas_ady(posicion, 6);
+
+    int new_pos = nueva_pos(x, y + 1);
 
     switch(tablero[posicion]){
     case 0: tablero[posicion1]=0;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 1;break;
-    case 1: if(cas_ady(posicion1)==7){
+    case 1: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
-            return 1;
+            return  1;
             };break;
     case 2: tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 0;break;
-    case 3: if(cas_ady(posicion1)==7){
+    case 3: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
@@ -1297,32 +830,57 @@ bool max_izquierda(int posicion, int casilla){
             numero_papa = new_pos;
             return 1;
             };break;
-    case 4: if(matrix_y(posicion)!=1){
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=1){
+            while(y>max_y){
+                y--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x, y + 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
             tablero[posicion] = casilla;
-            tablero[m_izq]= cas_pret;
+            tablero[posi]= cas_pret;
             numero_papa = posicion;
-            numero_pret = m_izq;
+            numero_pret = posi;
+            return 1;
             }else {
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
             }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=1){
+            else if(matrix_y(posicion)!=1){
+            while(y>max_y){
+                y--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x, y + 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
-            tablero[m_izq] = cas_exn;
+            tablero[posi] = cas_exn;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-            numero_ex = m_izq;
-            }else{
+            numero_ex = posi;
+            return 1;
+            }
+            else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            }
-
-            return 1;break;
+            return 1;
+            };
+            break;
     default: return 0;break;
     };
 }
@@ -1332,70 +890,103 @@ bool max_diagderecha(int posicion, int casilla){
     int m_dider = pos_diagderecha(posicion);
     int x = matrix_x(posicion);
     int y = matrix_y(posicion);
+    int max_x = matrix_x(m_dider);
+    int max_y = matrix_y(m_dider);
+    int posi;
+
     while(x>1 && y<8){
         x--;
         y++;
         posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
         if(tablero[posicion]!=0){
             break;
         }
-    }
-    int new_pos = nueva_pos(x+1, y-1);
+    };
+
+    int cas_ini = cas_ady(posicion1, 1);
+    int cas_des = cas_ady(posicion, 1);
+
+    int new_pos = nueva_pos(x + 1, y - 1);
 
     switch(tablero[posicion]){
     case 0: tablero[posicion1]=0;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 1;break;
-    case 1: if(cas_ady(posicion1)==2){
+    case 1: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
-            return 1;
+            return  1;
             };break;
     case 2: tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 0;break;
-    case 3: if(cas_ady(posicion1)==2){
+    case 3: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
             return 1;
             };break;
-    case 4: if(matrix_x(posicion)!=1){
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=8 && matrix_x(posicion)!=1){
+            while(x>max_x && y<max_y){
+                x--;
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y - 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
             tablero[posicion] = casilla;
-            tablero[m_dider]= cas_pret;
+            tablero[posi]= cas_pret;
             numero_papa = posicion;
-            numero_pret = m_dider;
+            numero_pret = posi;
+            return 1;
             }else {
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
             }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=1){
+            else if(matrix_y(posicion)!=8 && matrix_x(posicion)!=1){
+            while(x>max_x && y<max_y){
+                x--;
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y - 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
-            tablero[m_dider] = cas_exn;
+            tablero[posi] = cas_exn;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-            numero_ex = m_dider;
-            }else{
+            numero_ex = posi;
+            return 1;
+            }
+            else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            }
-
-            return 1;break;
+            return 1;
+            };
+            break;
     default: return 0;break;
     };
 }
@@ -1405,70 +996,103 @@ bool max_diagizquierda(int posicion, int casilla){
     int m_dizq = pos_diagizquierda(posicion);
     int x = matrix_x(posicion);
     int y = matrix_y(posicion);
+    int max_x = matrix_x(m_dizq);
+    int max_y = matrix_y(m_dizq);
+    int posi;
+
     while(x>1 && y>1){
         x--;
         y--;
         posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
         if(tablero[posicion]!=0){
             break;
         }
-    }
+    };
 
-    int new_pos = nueva_pos(x+1, y+1);
+    int cas_ini = cas_ady(posicion1, 7);
+    int cas_des = cas_ady(posicion, 7);
+
+    int new_pos = nueva_pos(x + 1, y + 1);
 
     switch(tablero[posicion]){
     case 0: tablero[posicion1]=0;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 1;break;
-    case 1: if(cas_ady(posicion1)==8){
+    case 1: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
-            return 1;
+            return  1;
             };break;
     case 2: tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 0;break;
-    case 3: if(cas_ady(posicion1)==8){
+    case 3: if(cas_ini!=0){
             return 0;
-            }else{tablero[posicion1] = 0;
+            }else{
+            tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
             return 1;
             };break;
-    case 4: if(matrix_x(posicion)!=1){
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=1 && matrix_x(posicion)!=1){
+            while(x>max_x && y>max_y){
+                x--;
+                y--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y + 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
             tablero[posicion] = casilla;
-            tablero[m_dizq]= cas_pret;
+            tablero[posi]= cas_pret;
             numero_papa = posicion;
-            numero_pret = m_dizq;
+            numero_pret = posi;
+            return 1;
             }else {
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
             }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=1){
+            else if(matrix_y(posicion)!=1 && matrix_x(posicion)!=1){
+            while(x>max_x && y>max_y){
+                x--;
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y + 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
-            tablero[m_dizq] = cas_exn;
+            tablero[posi] = cas_exn;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-            numero_ex = m_dizq;
-            }else{
+            numero_ex = posi;
+            return 1;
+            }
+            else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            }
-
-            return 1;break;
+            return 1;
+            };
+            break;
     default: return 0;break;
     };
 }
@@ -1478,70 +1102,103 @@ bool max_diag_abderecha(int posicion, int casilla){
     int m_abder = pos_diag_abderecha(posicion);
     int x = matrix_x(posicion);
     int y = matrix_y(posicion);
+    int max_x = matrix_x(m_abder);
+    int max_y = matrix_y(m_abder);
+    int posi;
+
     while(x<8 && y<8){
         x++;
         y++;
         posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
         if(tablero[posicion]!=0){
             break;
         }
-    }
-    int new_pos = nueva_pos(x-1, y-1);
+    };
+
+    int cas_ini = cas_ady(posicion1, 3);
+    int cas_des = cas_ady(posicion, 3);
+
+    int new_pos = nueva_pos(x - 1, y - 1);
 
     switch(tablero[posicion]){
     case 0: tablero[posicion1]=0;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 1;break;
-    case 1: if(cas_ady(posicion1)==4){
+    case 1: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
-            return 1;
+            return  1;
             };break;
     case 2: tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 0;break;
-    case 3: if(cas_ady(posicion1)==4){
+    case 3: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
             return 1;
             };break;
-    case 4: if(matrix_x(posicion)!=1){
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=8 && matrix_x(posicion)!=8){
+            while(x<max_x && y<max_y){
+                x++;
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y - 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
             tablero[posicion] = casilla;
-            tablero[m_abder]= cas_pret;
+            tablero[posi]= cas_pret;
             numero_papa = posicion;
-            numero_pret = m_abder;
+            numero_pret = posi;
+            return 1;
             }else {
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
             }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=8){
+            else if(matrix_y(posicion)!=8 && matrix_x(posicion)!=8){
+            while(x<max_x && y<max_y){
+                x++;
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y - 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
-            tablero[m_abder] = cas_exn;
+            tablero[posi] = cas_exn;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-            numero_ex = m_abder;
-            }else{
+            numero_ex = posi;
+            return 1;
+            }
+            else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            }
-
-            return 1;break;
+            return 1;
+            };
+            break;
     default: return 0;break;
     };
 }
@@ -1551,77 +1208,948 @@ bool max_diag_abizquierda(int posicion, int casilla){
     int m_abizq = pos_diag_abizquierda(posicion);
     int x = matrix_x(posicion);
     int y = matrix_y(posicion);
+    int max_x = matrix_x(m_abizq);
+    int max_y = matrix_y(m_abizq);
+    int posi;
+
     while(x<8 && y>1){
         x++;
         y--;
         posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
         if(tablero[posicion]!=0){
             break;
         }
-    }
-    int new_pos = nueva_pos(x+1, y-1);
+    };
+
+    int cas_ini = cas_ady(posicion1, 5);
+    int cas_des = cas_ady(posicion, 5);
+
+    int new_pos = nueva_pos(x - 1, y + 1);
 
     switch(tablero[posicion]){
     case 0: tablero[posicion1]=0;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 1;break;
-    case 1: if(cas_ady(posicion1)==6){
+    case 1: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
-            return 1;
+            return  1;
             };break;
     case 2: tablero[posicion]=casilla;
             numero_papa = posicion;
-
             return 0;break;
-    case 3: if(cas_ady(posicion1)==6){
+    case 3: if(cas_ini!=0){
             return 0;
             }else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-
             return 1;
             };break;
-    case 4: if(matrix_x(posicion)!=1){
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=1 && matrix_x(posicion)!=8){
+            while(x<max_x && y>max_y){
+                x++;
+                y--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y + 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
             tablero[posicion] = casilla;
-            tablero[m_abizq]= cas_pret;
+            tablero[posi]= cas_pret;
             numero_papa = posicion;
-            numero_pret = m_abizq;
+            numero_pret = posi;
+            return 1;
             }else {
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
             }
-
-            return 1;break;
-    case 5: if(matrix_x(posicion)!=8){
+            else if(matrix_y(posicion)!=1 && matrix_x(posicion)!=8){
+            while(x<max_x && y>max_y){
+                x++;
+                y--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y + 1);
+            break;
+            }
+            };
             tablero[posicion1]=0;
-            tablero[m_abizq] = cas_exn;
+            tablero[posi] = cas_exn;
             tablero[posicion]=casilla;
             numero_papa = posicion;
-            numero_ex = m_abizq;
-            }else{
+            numero_ex = posi;
+            return 1;
+            }
+            else{
             tablero[posicion1] = 0;
             tablero[new_pos] = casilla;
             numero_papa = new_pos;
-            }
+            return 1;
+            };
+            break;
+    default: return 0;break;
+    };
+}
 
+bool max_abajo_ma(int posicion, int casilla){
+    int posicion1 = posicion;
+    int m_aba = pos_abajo(posicion);
+    int x = matrix_x(posicion);
+    int y = matrix_y(posicion);
+    int max_x = matrix_x(m_aba);
+    int max_y = matrix_y(m_aba);
+    int posi;
+
+    while(x<8){
+        x++;
+        posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
+        if(tablero[posicion]!=0){
+            break;
+        }
+    };
+
+    int cas_ini = cas_ady(posicion1, 4);
+    int cas_des = cas_ady(posicion, 4);
+
+    int new_pos = nueva_pos(x - 1, y);
+    cout<<posicion1<<endl;
+    cout<<posicion<<endl;
+    cout<<cas_ady(posicion, 4)<<endl;
+    switch(tablero[posicion]){
+    case 0: tablero[posicion1]=0;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
             return 1;break;
+    case 1: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return  1;
+            };break;
+    case 2: tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 0;break;
+    case 3: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };break;
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_x(posicion)!=8){
+            while(x<max_x){
+                x++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posicion] = casilla;
+            tablero[posi]= cas_pret;
+            numero_mama = posicion;
+            numero_pret = posi;
+            return 1;
+            }else {
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_x(posicion)!=8){
+            while(x<max_x){
+                x++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posi] = cas_exn;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            numero_ex = posi;
+            return 1;
+            }
+            else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    default: return 0;break;
+    };
+}
+
+bool max_arriba_ma(int posicion, int casilla){
+    int posicion1 = posicion;
+    int m_arr = pos_arriba(posicion);
+    int x = matrix_x(posicion);
+    int y = matrix_y(posicion);
+    int max_x = matrix_x(m_arr);
+    int max_y = matrix_y(m_arr);
+    int posi;
+
+    while(x>1){
+        x--;
+        posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
+        if(tablero[posicion]!=0){
+            break;
+        }
+    };
+
+    int cas_ini = cas_ady(posicion1, 0);
+    int cas_des = cas_ady(posicion, 0);
+
+    int new_pos = nueva_pos(x + 1, y);
+
+    switch(tablero[posicion]){
+    case 0: tablero[posicion1]=0;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 1;break;
+    case 1: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return  1;
+            };break;
+    case 2: tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 0;break;
+    case 3: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };break;
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_x(posicion)!=1){
+            while(x>max_x){
+                x--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posicion] = casilla;
+            tablero[posi]= cas_pret;
+            numero_mama = posicion;
+            numero_pret = posi;
+            return 1;
+            }else {
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_x(posicion)!=1){
+            while(x>max_x){
+                x--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posi] = cas_exn;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            numero_ex = posi;
+            return 1;
+            }
+            else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    default: return 0;break;
+    };
+}
+
+bool max_derecha_ma(int posicion, int casilla){
+    int posicion1 = posicion;
+    int m_der = pos_derecha(posicion);
+    int x = matrix_x(posicion);
+    int y = matrix_y(posicion);
+    int max_x = matrix_x(m_der);
+    int max_y = matrix_y(m_der);
+    int posi;
+
+    while(y<8){
+        y++;
+        posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
+        if(tablero[posicion]!=0){
+            break;
+        }
+    };
+
+    int cas_ini = cas_ady(posicion1, 2);
+    int cas_des = cas_ady(posicion, 2);
+
+    int new_pos = nueva_pos(x, y - 1);
+
+    switch(tablero[posicion]){
+    case 0: tablero[posicion1]=0;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 1;break;
+    case 1: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return  1;
+            };break;
+    case 2: tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 0;break;
+    case 3: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };break;
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=8){
+            while(y<max_y){
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x, y - 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posicion] = casilla;
+            tablero[posi]= cas_pret;
+            numero_mama = posicion;
+            numero_pret = posi;
+            return 1;
+            }else {
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=8){
+            while(y<max_y){
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x, y - 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posi] = cas_exn;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            numero_ex = posi;
+            return 1;
+            }
+            else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    default: return 0;break;
+    };
+}
+
+bool max_izquierda_ma(int posicion, int casilla){
+    int posicion1 = posicion;
+    int m_izq = pos_izquierda(posicion);
+    int x = matrix_x(posicion);
+    int y = matrix_y(posicion);
+    int max_x = matrix_x(m_izq);
+    int max_y = matrix_y(m_izq);
+    int posi;
+
+    while(y>1){
+        y--;
+        posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
+        if(tablero[posicion]!=0){
+            break;
+        }
+    };
+
+    int cas_ini = cas_ady(posicion1, 6);
+    int cas_des = cas_ady(posicion, 6);
+
+    int new_pos = nueva_pos(x, y + 1);
+
+    switch(tablero[posicion]){
+    case 0: tablero[posicion1]=0;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 1;break;
+    case 1: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return  1;
+            };break;
+    case 2: tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 0;break;
+    case 3: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };break;
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=1){
+            while(y>max_y){
+                y--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x, y + 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posicion] = casilla;
+            tablero[posi]= cas_pret;
+            numero_mama = posicion;
+            numero_pret = posi;
+            return 1;
+            }else {
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=1){
+            while(y>max_y){
+                y--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x, y + 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posi] = cas_exn;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            numero_ex = posi;
+            return 1;
+            }
+            else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    default: return 0;break;
+    };
+}
+
+bool max_diagderecha_ma(int posicion, int casilla){
+    int posicion1 = posicion;
+    int m_dider = pos_diagderecha(posicion);
+    int x = matrix_x(posicion);
+    int y = matrix_y(posicion);
+    int max_x = matrix_x(m_dider);
+    int max_y = matrix_y(m_dider);
+    int posi;
+
+    while(x>1 && y<8){
+        x--;
+        y++;
+        posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
+        if(tablero[posicion]!=0){
+            break;
+        }
+    };
+
+    int cas_ini = cas_ady(posicion1, 1);
+    int cas_des = cas_ady(posicion, 1);
+
+    int new_pos = nueva_pos(x + 1, y - 1);
+
+    switch(tablero[posicion]){
+    case 0: tablero[posicion1]=0;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 1;break;
+    case 1: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return  1;
+            };break;
+    case 2: tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 0;break;
+    case 3: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };break;
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=8 && matrix_x(posicion)!=1){
+            while(x>max_x && y<max_y){
+                x--;
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y - 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posicion] = casilla;
+            tablero[posi]= cas_pret;
+            numero_mama = posicion;
+            numero_pret = posi;
+            return 1;
+            }else {
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=8 && matrix_x(posicion)!=1){
+            while(x>max_x && y<max_y){
+                x--;
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y - 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posi] = cas_exn;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            numero_ex = posi;
+            return 1;
+            }
+            else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    default: return 0;break;
+    };
+}
+
+bool max_diagizquierda_ma(int posicion, int casilla){
+    int posicion1 = posicion;
+    int m_dizq = pos_diagizquierda(posicion);
+    int x = matrix_x(posicion);
+    int y = matrix_y(posicion);
+    int max_x = matrix_x(m_dizq);
+    int max_y = matrix_y(m_dizq);
+    int posi;
+
+    while(x>1 && y>1){
+        x--;
+        y--;
+        posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
+        if(tablero[posicion]!=0){
+            break;
+        }
+    };
+
+    int cas_ini = cas_ady(posicion1, 7);
+    int cas_des = cas_ady(posicion, 7);
+
+    int new_pos = nueva_pos(x + 1, y + 1);
+
+    switch(tablero[posicion]){
+    case 0: tablero[posicion1]=0;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 1;break;
+    case 1: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return  1;
+            };break;
+    case 2: tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 0;break;
+    case 3: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };break;
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=1 && matrix_x(posicion)!=1){
+            while(x>max_x && y>max_y){
+                x--;
+                y--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y + 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posicion] = casilla;
+            tablero[posi]= cas_pret;
+            numero_mama = posicion;
+            numero_pret = posi;
+            return 1;
+            }else {
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=1 && matrix_x(posicion)!=1){
+            while(x>max_x && y>max_y){
+                x--;
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x + 1, y + 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posi] = cas_exn;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            numero_ex = posi;
+            return 1;
+            }
+            else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    default: return 0;break;
+    };
+}
+
+bool max_diag_abderecha_ma(int posicion, int casilla){
+    int posicion1 = posicion;
+    int m_abder = pos_diag_abderecha(posicion);
+    int x = matrix_x(posicion);
+    int y = matrix_y(posicion);
+    int max_x = matrix_x(m_abder);
+    int max_y = matrix_y(m_abder);
+    int posi;
+
+    while(x<8 && y<8){
+        x++;
+        y++;
+        posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
+        if(tablero[posicion]!=0){
+            break;
+        }
+    };
+
+    int cas_ini = cas_ady(posicion1, 3);
+    int cas_des = cas_ady(posicion, 3);
+
+    int new_pos = nueva_pos(x - 1, y - 1);
+
+    switch(tablero[posicion]){
+    case 0: tablero[posicion1]=0;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 1;break;
+    case 1: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return  1;
+            };break;
+    case 2: tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 0;break;
+    case 3: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };break;
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=8 && matrix_x(posicion)!=8){
+            while(x<max_x && y<max_y){
+                x++;
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y - 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posicion] = casilla;
+            tablero[posi]= cas_pret;
+            numero_mama = posicion;
+            numero_pret = posi;
+            return 1;
+            }else {
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=8 && matrix_x(posicion)!=8){
+            while(x<max_x && y<max_y){
+                x++;
+                y++;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y - 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posi] = cas_exn;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            numero_ex = posi;
+            return 1;
+            }
+            else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    default: return 0;break;
+    };
+}
+
+bool max_diag_abizquierda_ma(int posicion, int casilla){
+    int posicion1 = posicion;
+    int m_abizq = pos_diag_abizquierda(posicion);
+    int x = matrix_x(posicion);
+    int y = matrix_y(posicion);
+    int max_x = matrix_x(m_abizq);
+    int max_y = matrix_y(m_abizq);
+    int posi;
+
+    while(x<8 && y>1){
+        x++;
+        y--;
+        posicion = nueva_pos(x, y);
+        x = matrix_x(posicion);
+        y = matrix_y(posicion);
+        if(tablero[posicion]!=0){
+            break;
+        }
+    };
+
+    int cas_ini = cas_ady(posicion1, 5);
+    int cas_des = cas_ady(posicion, 5);
+
+    int new_pos = nueva_pos(x - 1, y + 1);
+
+    switch(tablero[posicion]){
+    case 0: tablero[posicion1]=0;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 1;break;
+    case 1: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return  1;
+            };break;
+    case 2: tablero[posicion]=casilla;
+            numero_mama = posicion;
+            return 0;break;
+    case 3: if(cas_ini!=0){
+            return 0;
+            }else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };break;
+    case 4: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=1 && matrix_x(posicion)!=8){
+            while(x<max_x && y>max_y){
+                x++;
+                y--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y + 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posicion] = casilla;
+            tablero[posi]= cas_pret;
+            numero_mama = posicion;
+            numero_pret = posi;
+            return 1;
+            }else {
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
+    case 5: if(cas_ini!=0 && cas_des!=0){
+                return 0;
+            }
+            else if(matrix_y(posicion)!=1 && matrix_x(posicion)!=8){
+            while(x<max_x && y>max_y){
+                x++;
+                y--;
+            posi = nueva_pos(x, y);
+            if(tablero[posi]!=0){
+            posi = nueva_pos(x - 1, y + 1);
+            break;
+            }
+            };
+            tablero[posicion1]=0;
+            tablero[posi] = cas_exn;
+            tablero[posicion]=casilla;
+            numero_mama = posicion;
+            numero_ex = posi;
+            return 1;
+            }
+            else{
+            tablero[posicion1] = 0;
+            tablero[new_pos] = casilla;
+            numero_mama = new_pos;
+            return 1;
+            };
+            break;
     default: return 0;break;
     };
 }
 
 bool movimiento_papa(int jugada) {
     int pos;
-    if(turno == 2 || turno == 7){
+    if(turno_act() == 2){
         pos = numero_papa;
     }
 
@@ -1642,7 +2170,7 @@ bool movimiento_papa(int jugada) {
 
 bool movimiento_mama(int jugada) {
     int pos, pos1;
-    if(turno == 3 || turno == 8){
+    if(turno_act() == 3){
         pos = numero_mama;
         pos1 = numero_mama;
     }
@@ -1672,7 +2200,7 @@ void turn(){
     int jugador = curr_jug();
     int jugada = ranmov();
     int n = 0;
-    if(turno==1 || turno==6){
+    if(turno_act()==1){
     cout<<"Juega Princesa ";
     cout<<"Turno "<<turno<<endl;
     cout<<"Jugada "<<jugada<<endl;
@@ -1689,7 +2217,7 @@ void turn(){
     }
 
     // en cada uno de estos va lo mismo que en el de la reina, sólo que falta crear las funciones de movimiento
-    if(turno==2 || turno==7){
+    if(turno_act()==2){
     cout<<"Juega Papa ";
     cout<<"Turno "<<turno<<endl;
     cout<<"Jugada: "<<jugada<<endl;
@@ -1704,7 +2232,7 @@ void turn(){
         }
     };
     }
-    if(turno==3 || turno==8){
+    if(turno_act()==3){
     cout<<"Juega Mama ";
     cout<<"Turno "<<turno<<endl;
     cout<<"Jugada: "<<jugada<<endl;
@@ -1720,7 +2248,7 @@ void turn(){
     };
 
     }
-    if(turno==4 || turno==9){
+    if(turno_act()==4){
     cout<<"Juega Pretendiente ";
     cout<<"Turno "<<turno<<endl;
     cout<<"Jugada "<<jugada<<endl;
@@ -1735,7 +2263,7 @@ void turn(){
         }
     };
     }
-    if(turno==5  || turno==10){
+    if(turno_act()==5){
     cout<<"Juega Exnovio ";
     cout<<"Turno "<<turno<<endl;
     cout<<"Jugada "<<jugada<<endl;
@@ -1766,7 +2294,7 @@ void turn(){
         system("pause");
         exit(0);
         }
-        else if(turno<=10)
+        else if(turno<=50)
         {
             turn();
         }
